@@ -1,0 +1,114 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* 최상위 레이아웃: 메인(좌) vs 옵션(우) */
+.app-layout {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* 메인 영역 (헤더 + 본문) */
+.main-container {
+  flex: 1; /* 남은 공간 모두 차지 */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 상단 헤더 섹션 */
+.main-header {
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+}
+.title-bar, .menu-bar, .tool-bar, .horizontal-ruler {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+/* 본문 영역 (수직자 + 내비 + 페이지) */
+.body-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* 왼쪽 수직 자 */
+.vertical-ruler-container {
+  width: 30px;
+  background: #f9f9f9;
+  border-right: 1px solid #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.vertical-ruler {
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  color: #999;
+}
+
+/* 1. 전체 콘텐츠 영역 (여기에서 스크롤 발생!) */
+.content-area {
+  display: flex;
+  flex: 1;
+  overflow: auto; /* 핵심: 위젯과 페이지를 모두 포함하는 영역에 가로/세로 스크롤 허용 */
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 2. 왼쪽 사이드바 (내비게이션 위젯) */
+.left-sidebar {
+  width: 200px;
+  flex-shrink: 0; /* 화면이 좁아져도 위젯 너비가 찌그러지지 않도록 고정 */
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding: 20px;
+}
+
+/* 3. 페이지 컨테이너 */
+.page-container {
+  flex: 1;
+  background: #efefef;
+  padding: 30px;
+  
+  /* 기존에 있던 overflow-y: auto; 는 삭제합니다 (부모에서 스크롤하므로) */
+  
+  display: flex;
+  justify-content: center; /* 내부 문서(.page)를 가로 중앙에 배치 */
+  align-items: flex-start; /* 세로로 길어질 때 상단을 기준으로 정렬 */
+  
+  /* 화면이 좁아졌을 때 내부 문서(.page) 크기 이하로 쪼그라드는 것을 방지 -> 부모의 가로 스크롤 유발 */
+  min-width: max-content; 
+  min-height: 0;
+}
+
+/* 4. 실제 문서 페이지 */
+.page {
+  width: 800px; /* 원하는 문서 너비 지정 */
+  background: #fff;
+  min-height: 1000px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.companion-sidebar {
+  width: 60px;
+  background: #fff;
+  border-left: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  font-size: 13px;
+  color: #666;
+  flex-shrink: 0; /* 폭 고정 */
+}
