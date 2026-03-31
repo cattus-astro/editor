@@ -1,16 +1,24 @@
+:host {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
 /* 3. 페이지 컨테이너 */
 .page-container {
   flex: 1;
-  padding: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-width: max-content;
+  position: relative;
+  min-width: 0;
   min-height: 0;
+  overflow: auto;
 }
 
 /* 4. 실제 문서 페이지 */
 .page {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 800px;
   background: #fff;
   min-height: 1000px;
