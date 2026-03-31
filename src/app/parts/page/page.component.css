@@ -1,0 +1,18 @@
+/* 3. 페이지 컨테이너 */
+.page-container {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: max-content;
+  min-height: 0;
+}
+
+/* 4. 실제 문서 페이지 */
+.page {
+  width: 800px;
+  background: #fff;
+  min-height: 1000px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}

@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-page',
   imports: [],
-  templateUrl: './page.html',
-  styleUrl: './page.css',
+  templateUrl: './page.component.html',
+  styleUrl: './page.component.css',
 })
 export class Page {}

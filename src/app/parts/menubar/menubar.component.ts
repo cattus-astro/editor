@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-menubar',
   imports: [],
-  templateUrl: './menubar.html',
-  styleUrl: './menubar.css',
+  templateUrl: './menubar.component.html',
+  styleUrl: './menubar.component.css',
 })
 export class Menubar {}

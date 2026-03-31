@@ -1,0 +1,8 @@
+/* 2. 왼쪽 사이드바 (내비게이션 위젯) */
+.left-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding: 20px;
+}

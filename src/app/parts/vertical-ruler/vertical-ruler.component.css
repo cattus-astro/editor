@@ -1,0 +1,15 @@
+/* 왼쪽 수직 자 */
+.vertical-ruler-container {
+  width: 30px;
+  background: #f9f9f9;
+  border-right: 1px solid #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.vertical-ruler {
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  color: #999;
+}
