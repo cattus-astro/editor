@@ -11,5 +11,7 @@ export class CanvasService {
 
     canvas.width = width * dpr;
     canvas.height = height * dpr;
+
+    canvas.getContext('2d')?.scale(dpr, dpr);
   }
 }
