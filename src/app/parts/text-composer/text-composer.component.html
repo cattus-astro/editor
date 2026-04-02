@@ -1,0 +1,8 @@
+<div
+  class="text-composer"
+  contenteditable="true"
+  [style.transform]="dimensions()"
+  (compositionstart)="onCompositionStart($event)"
+  (compositionupdate)="onCompositionUpdate($event)"
+  (compositionend)="onCompositionEnd($event)"
+></div>

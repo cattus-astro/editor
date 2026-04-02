@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Safari IME 깨짐 재현 테스트</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 50px;
+      }
+      /* 캔버스 에디터의 숨겨진 div라고 가정합니다 (테스트를 위해 보이게 함) */
+      #editor {
+        position: absolute;
+        top: 100px;
+        left: 50px;
+        font-size: 24px;
+        border: 2px solid red;
+        padding: 5px;
+        min-width: 20px;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Safari 한글 깨짐 재현 (커서 추적 시뮬레이션)</h2>
+    <p>아래 빨간 박스에 <strong>빠르게 '강아지'</strong>를 타이핑해 보세요.</p>
+
+    <div id="editor" contenteditable="true"></div>
+
+    <script>
+      const editor = document.getElementById('editor');
+      let currentLeft = 50;
+
+      // 캔버스 에디터처럼, 글자가 조합될 때마다 요소를 우측으로 이동시키는 로직
+      editor.addEventListener('compositionupdate', (e) => {
+        currentLeft += 5;
+        editor.style.left = currentLeft + 'px';
+
+        console.log(`[update] "${e.data}", 이동 위치: ${currentLeft}px`);
+
+        // 🚨 [추가된 부분] 크롬(자체 오토마타) 방식처럼 DOM을 강제로 비워버립니다!
+        // 오토마타가 데이터를 가져갔으니 껍데기(DOM)는 지운다는 컨셉
+        editor.innerHTML = '';
+      });
+
+      // 백스페이스나 일반 키 입력 시 위치 초기화 방지
+      editor.addEventListener('input', (e) => {
+        if (!e.isComposing) {
+          currentLeft += 5;
+          editor.style.left = currentLeft + 'px';
+        }
+      });
+    </script>
+  </body>
+</html>
