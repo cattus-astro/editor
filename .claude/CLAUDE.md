@@ -1,6 +1,22 @@
 
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
+## Before starting work
+
+- **Plan first**: Write a plan to `.claude/tasks/TASK_NAME.md` with detailed implementation steps, reasoning, and broken-down tasks. Think MVP — don't over-plan.
+- **Wait for approval**: Ask me to review the plan first. Do not continue until I approve.
+
+## While implementing
+
+- **Update the plan**: Keep the plan file up to date as you work. After completing tasks, append detailed descriptions of changes for handover.
+- **External docs**: Always use Context7 MCP for external library/API documentation, code generation, or setup steps without me having to explicitly ask.
+- **Token reporting**: After completing a task, report how many tokens you used.
+- **Task cleanup**: Delete the created task file only after obtaining my explicit confirmation.
+- **Subagent token savings**: When target files are known and few, use Read(offset/limit) directly instead of Explore subagent. Never re-read files already returned by a subagent.
+- **Explore agent usage**: Only use when the search target is unclear or broad codebase exploration is needed. If API names, type names, or file locations can be inferred, use Grep/Glob directly.
+- **Minimize file reads**: For files over 500 lines, use `offset/limit` to read only the needed sections (imports, specific methods, etc.). For reference files, use Grep to check patterns instead of reading the entire file.
+- **No unnecessary file reads**: Do not read files that are not direct modification targets (routes, configs, etc.) unless specific information is needed from them.
+
 ## TypeScript Best Practices
 
 - Use strict type checking
