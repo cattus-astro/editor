@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 
 @Component({
   selector: 'app-text-composer',
   templateUrl: './text-composer.component.html',
+  styleUrl: './text-composer.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TextComposer {
@@ -24,8 +33,14 @@ export class TextComposer {
   // TODO: 어디서 관리해야하는 정보일 지 고민...
   readonly position = input.required<{ x: number; y: number }>();
 
+  private readonly editable = viewChild<ElementRef<HTMLDivElement>>('contenteditable');
+
+  focus(): void {
+    this.editable()?.nativeElement.focus();
+  }
+
   protected dimensions = computed(() => {
-    return `matrix(1, 0, 0, 1, ${this.position().x}px, ${this.position().y}px)`;
+    return `matrix(1, 0, 0, 1, ${this.position().x}, ${this.position().y})`;
   });
 
   protected onCompositionStart(event: CompositionEvent): void {

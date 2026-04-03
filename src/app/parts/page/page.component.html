@@ -1,7 +1,10 @@
-<main class="page-container">
+<main class="page-container" (click)="onClickPage($event)">
   <!-- TODO: 용지 서식에 맞게 변경되도록 수정. 디렉티브를 꽂으면 좋을 듯 -->
   <!-- TODO: left 의 경우 좌측 navigation-widget 노출 유무에 따라 다르게 계산되어야함. 이부분도 디렉티브로 분리하기 
               아마 레퍼 너비에서 현재 페이지 너비 고려하면 몇 px 움직여야하는지 계산될 듯 -->
-  <div class="page" style="width: 794px; height: 1124px; left: 286px"><canvas #page></canvas></div>
-  <app-text-composer [position]="position()"></app-text-composer>
+  <div class="page" style="width: 794px; height: 1124px; left: 286px" >
+    <canvas #page></canvas>
+  </div>
+
+  <app-text-composer [position]="position()" ></app-text-composer>
 </main>
