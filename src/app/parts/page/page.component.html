@@ -6,5 +6,5 @@
     <canvas #page></canvas>
   </div>
 
-  <app-text-composer [position]="position()" ></app-text-composer>
+  <app-text-composer [position]="position()" (updateText)="onTextUpdate($event)"></app-text-composer>
 </main>

@@ -7,6 +7,8 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+import { isNil } from 'lodash-es';
+import { UpdateTextEvent } from './text-composer.types';
 
 @Component({
   selector: 'app-text-composer',
@@ -25,10 +27,7 @@ export class TextComposer {
   readonly textDecoration = input<'none' | 'underline' | 'line-through'>('none');
   readonly backgroundColor = input<string | null>(null);
 
-  updateText = output<{
-    text: string;
-    eventType: 'compositionstart' | 'compositionupdate' | 'compositionend';
-  }>();
+  updateText = output<UpdateTextEvent>();
 
   // TODO: 어디서 관리해야하는 정보일 지 고민...
   readonly position = input.required<{ x: number; y: number }>();
@@ -51,7 +50,36 @@ export class TextComposer {
     this.updateText.emit({ text: event.data, eventType: 'compositionupdate' });
   }
 
+  protected onInput(event: Event): void {
+    if (!(event instanceof InputEvent)) {
+      return;
+    }
+
+    if (event.isComposing) {
+      return;
+    }
+
+    this.updateText.emit({ text: event.data ?? '', eventType: 'input' });
+    this.flushComposer(true);
+  }
+
   protected onCompositionEnd(event: CompositionEvent): void {
     this.updateText.emit({ text: event.data, eventType: 'compositionend' });
+
+    this.flushComposer(true);
+  }
+
+  private flushComposer(focus = false): void {
+    const editable = this.editable()?.nativeElement;
+
+    if (isNil(editable)) {
+      return;
+    }
+
+    editable.innerHTML = '';
+
+    if (focus) {
+      editable.focus();
+    }
   }
 }
