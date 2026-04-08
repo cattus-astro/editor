@@ -10,7 +10,11 @@
 //   backgroundColor: string | null;
 // }
 
-export interface Position {
+export interface Position<T extends 'viewport' | 'element' = 'viewport' | 'element'> {
   x: number;
   y: number;
+  relativeTo: T;
 }
+
+export type ElementPosition = Position<'element'>;
+export type ViewportPosition = Position<'viewport'>;

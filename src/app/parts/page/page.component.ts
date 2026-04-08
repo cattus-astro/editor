@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, inject, signal, viewChild } from 
 import { isNil } from 'lodash-es';
 import { CanvasService } from '../../core/canvas.service';
 import { isHTMLElement } from '../../core/dom-util';
-import { Position } from '../../core/types';
+import { ElementPosition, Position, ViewportPosition } from '../../core/types';
 import { TextComposer } from '../text-composer/text-composer.component';
 import { UpdateTextEvent } from '../text-composer/text-composer.types';
 
@@ -14,7 +14,7 @@ import { UpdateTextEvent } from '../text-composer/text-composer.types';
 })
 export class Page implements AfterViewInit {
   // TODO: 어떻게 계산할 지 고민
-  readonly position = signal<Position>({ x: 0, y: 0 });
+  readonly position = signal<ViewportPosition>({ x: 0, y: 0, relativeTo: 'viewport' });
 
   private readonly page = viewChild<ElementRef<HTMLCanvasElement>>('page');
   private readonly textComposer = viewChild<TextComposer>(TextComposer);
@@ -26,6 +26,7 @@ export class Page implements AfterViewInit {
 
     if (pageElement) {
       this.canvasService.initCanvas(pageElement.nativeElement);
+      this.initTextStyle();
     }
   }
 
@@ -48,7 +49,7 @@ export class Page implements AfterViewInit {
       return;
     }
 
-    this.position.set({ x: clientX, y: clientY });
+    this.position.set({ x: clientX, y: clientY, relativeTo: 'viewport' });
     this.textComposer()?.focus();
   }
 
@@ -58,6 +59,20 @@ export class Page implements AfterViewInit {
     } else if (eventType === 'input') {
       this.drawText(text);
     }
+  }
+
+  // TODO(cattus-cur): 함수위치 서비스로 이동
+  private initTextStyle(): void {
+    const ctx = this.page()?.nativeElement.getContext('2d');
+
+    if (isNil(ctx)) {
+      return;
+    }
+
+    ctx.font = '16px sans-serif';
+    ctx.fillStyle = '#000000';
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
   }
 
   private isInPage(x: number, y: number): boolean {
@@ -95,31 +110,20 @@ export class Page implements AfterViewInit {
     const newX = x + width;
     const newY = y;
 
-    this.position.set({ x: newX, y: newY });
-
-    // TODO: 여기서 좌표가... 캔버스 기준으로 되어야하고, 캔버스 기준으로 계산된 좌표가 matrix에 대응되려면
-    //  어떻게 계산해야하는지 고민해야함
-    // matrix 는 position:fixed 이므로 뷰포트 기준으로 좌표가 계산됨..
-    // 캔버스 내의 좌표는 캔버스 기준으로 계산됨..
-    // 둘의 오차가 계산되어야 한글자 입력될때 정확히 그 위치에 글자를 그리고 한칸 뒤로 밀 수 있음
-    //
-    // ctx.measureText(text).width 로 글자의 너비를 계산하고, 그 너비만큼 좌표를 이동시키면 됨...
+    this.position.update((prev) => ({ ...prev, x: newX, y: newY }));
   }
 
   // TODO(cattus-cur): 함수명 수정 & 위치 변경
-  private getCanvasPosition({ x, y }: Position): Position {
-    // TODO(cattus-cur): Positon 타입 자체를 강화하는것도 생각중
-    //  왜냐하면 이 좌표가 어디기준인지 자꾸 놓치는거같음...!
-
-    // TODO(cattus-cur): 만약 뷰포트 기준이라면~
+  private getCanvasPosition({ x, y, relativeTo }: ViewportPosition): ElementPosition {
     const pageElement = this.page()?.nativeElement;
 
     if (!pageElement) {
-      return { x, y };
+      throw new Error('Page element not found');
     }
 
+    // TODO(cattus-cur): 스크롤 위치도 고민해야함
     const { left, top } = pageElement.getBoundingClientRect();
 
-    return { x: x - left, y: y - top };
+    return { x: x - left, y: y - top, relativeTo: 'element' };
   }
 }

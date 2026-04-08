@@ -38,7 +38,7 @@
 
 /* 1. 전체 콘텐츠 영역 (여기에서 스크롤 발생!) */
 .content-area {
-  display: flex;
+  position: relative;
   flex: 1;
   overflow: auto;
   min-width: 0;

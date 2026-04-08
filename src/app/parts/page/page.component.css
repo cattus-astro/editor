@@ -1,17 +1,15 @@
 :host {
-  flex: 1;
-  display: flex;
-  min-width: 0;
-  min-height: 0;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* 3. 페이지 컨테이너 */
 .page-container {
-  flex: 1;
+}
+
+/* 래퍼: 페이지의 좌표계 기준 + 스크롤 영역 확보 */
+.page-wrapper {
   position: relative;
-  min-width: 0;
-  min-height: 0;
-  overflow: auto;
 }
 
 /* 4. 실제 문서 페이지 */
