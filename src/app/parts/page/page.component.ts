@@ -1,8 +1,16 @@
-import { AfterViewInit, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { isNil } from 'lodash-es';
 import { CanvasService } from '../../core/canvas.service';
 import { isHTMLElement } from '../../core/dom-util';
-import { ElementPosition, Position, ViewportPosition } from '../../core/types';
+import { Position } from '../../core/types';
 import { TextComposer } from '../text-composer/text-composer.component';
 import { UpdateTextEvent } from '../text-composer/text-composer.types';
 
@@ -13,8 +21,11 @@ import { UpdateTextEvent } from '../text-composer/text-composer.types';
   styleUrl: './page.component.css',
 })
 export class Page implements AfterViewInit {
-  // TODO: 어떻게 계산할 지 고민
-  readonly position = signal<ViewportPosition>({ x: 0, y: 0, relativeTo: 'viewport' });
+  readonly cursorPosition = signal<Position>({ x: 0, y: 0, base: 'page' }); // it based on page element
+
+  protected composerPosition = computed(() =>
+    this.converPosition({ ...this.cursorPosition(), base: 'viewport' }),
+  );
 
   private readonly page = viewChild<ElementRef<HTMLCanvasElement>>('page');
   private readonly textComposer = viewChild<TextComposer>(TextComposer);
@@ -39,7 +50,7 @@ export class Page implements AfterViewInit {
 
     const { clientX, clientY } = e;
 
-    if (!this.isInPage(clientX, clientY)) {
+    if (!this.isInPage({ x: clientX, y: clientY, base: 'viewport' })) {
       return;
     }
 
@@ -49,7 +60,7 @@ export class Page implements AfterViewInit {
       return;
     }
 
-    this.position.set({ x: clientX, y: clientY, relativeTo: 'viewport' });
+    this.cursorPosition.set(this.converPosition({ x: clientX, y: clientY, base: 'page' }));
     this.textComposer()?.focus();
   }
 
@@ -75,7 +86,8 @@ export class Page implements AfterViewInit {
     ctx.textAlign = 'left';
   }
 
-  private isInPage(x: number, y: number): boolean {
+  // TODO(cattus-cur): 함수명 변경등의 방법으로 base 가 항상 'viewport' 임을 알 수 있도록 하기.
+  private isInPage({ x, y, base }: Position): boolean {
     const pageElement = this.page();
 
     if (!pageElement) {
@@ -84,7 +96,9 @@ export class Page implements AfterViewInit {
 
     const { left, top, width, height } = pageElement.nativeElement.getBoundingClientRect();
 
-    return x >= left && x <= left + width && y >= top && y <= top + height;
+    return base === 'viewport'
+      ? x >= left && x <= left + width && y >= top && y <= top + height
+      : x >= 0 && x <= width && y >= 0 && y <= height;
   }
 
   // TODO(cattus-cur): 이거 진짜 로직 옮겨야할 거 같은데, 어디가 좋을 지 미정임
@@ -95,26 +109,36 @@ export class Page implements AfterViewInit {
       return;
     }
 
-    const { x, y } = this.position();
-    const { x: canvasX, y: canvasY } = this.getCanvasPosition(this.position());
+    const { x, y } = this.cursorPosition();
 
     // TODO(cattus-cur): 어디서 이 기본값을 관리해야할까?
     ctx.font = '16px sans-serif';
     ctx.fillStyle = '#000000';
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
-    ctx.fillText(text, canvasX, canvasY);
 
-    const { width } = ctx.measureText(text);
+    const {
+      width: textWidth,
+      fontBoundingBoxAscent,
+      fontBoundingBoxDescent,
+    } = ctx.measureText(text);
+    const textHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 
-    const newX = x + width;
-    const newY = y;
+    let drawX = x;
+    let drawY = y;
+    const needToMoveToNextLine = !this.isInPage({ x: drawX + textWidth, y: drawY, base: 'page' });
 
-    this.position.update((prev) => ({ ...prev, x: newX, y: newY }));
+    if (needToMoveToNextLine) {
+      drawX = 0;
+      drawY += textHeight;
+    }
+
+    ctx.fillText(text, drawX, drawY);
+
+    this.cursorPosition.update((prev) => ({ ...prev, x: drawX + textWidth, y: drawY }));
   }
 
-  // TODO(cattus-cur): 함수명 수정 & 위치 변경
-  private getCanvasPosition({ x, y, relativeTo }: ViewportPosition): ElementPosition {
+  private converPosition({ x, y, base }: Position & { base: 'page' | 'viewport' }): Position {
     const pageElement = this.page()?.nativeElement;
 
     if (!pageElement) {
@@ -124,6 +148,7 @@ export class Page implements AfterViewInit {
     // TODO(cattus-cur): 스크롤 위치도 고민해야함
     const { left, top } = pageElement.getBoundingClientRect();
 
-    return { x: x - left, y: y - top, relativeTo: 'element' };
+    // TODO(cattus-cur): 스크롤도 고려해야함!
+    return base === 'page' ? { x: x - left, y: y - top, base } : { x: x + left, y: y + top, base };
   }
 }

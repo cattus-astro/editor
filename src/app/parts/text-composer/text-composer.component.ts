@@ -8,6 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { isNil } from 'lodash-es';
+import { Position } from '../../core/types';
 import { UpdateTextEvent } from './text-composer.types';
 
 @Component({
@@ -29,14 +30,24 @@ export class TextComposer {
 
   updateText = output<UpdateTextEvent>();
 
-  // TODO: 어디서 관리해야하는 정보일 지 고민...
-  readonly position = input.required<{ x: number; y: number }>();
+  // TODO:
+  readonly position = input.required<Position>();
 
   private readonly editable = viewChild<ElementRef<HTMLDivElement>>('contenteditable');
 
   focus(): void {
     this.editable()?.nativeElement.focus();
   }
+
+  // TODO: 스크롤 host에 (wheel) 바인딩만 추가
+  // 이게 뭐냐면, 텍스트컴포저위에 커서를 둔 채로 스크롤을 하게 되면 페이지가 스크롤되지 않는 이슈를 위한것.
+  // protected onWheel(event: WheelEvent): void {
+  //   // contenteditable이 자체 스크롤 가능하면 그쪽 우선
+  //   // 여기선 그런 케이스 없으니 그냥 부모로 넘김
+  //   event.preventDefault();
+  //   const scroller = this.findScrollableAncestor(); // closest('.content-area') 한 줄
+  //   scroller?.scrollBy({ left: event.deltaX, top: event.deltaY });
+  // }
 
   protected dimensions = computed(() => {
     return `matrix(1, 0, 0, 1, ${this.position().x}, ${this.position().y})`;
